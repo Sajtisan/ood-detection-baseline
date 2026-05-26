@@ -1,6 +1,6 @@
 # --- Deep Learning Keretrendszer ---
 # Ez tartalmazza a Keras-t is, amivel a modelleket, a normalizációt 
-# és a tanulási ráta ütemezőket (CosineDecay) csináljátok.
+# és a tanulási ráta ütemezőket (CosineDecay) csináljuk.
 tensorflow>=2.10.0
 
 # --- Adatkezelés és Matematika ---
@@ -9,7 +9,7 @@ numpy>=1.23.0
 # A pandas az eredmények (AUROC, FPR) táblázatos összesítéséhez kell.
 pandas>=1.5.0
 # A scipy kritikus: az SVHN (OOD) adathalmaz hivatalos formátuma .mat (MATLAB), 
-# ezt csak a scipy-val tudjátok könnyen betölteni.
+# ezt csak a scipy-val tudjuk könnyen betölteni.
 scipy>=1.10.0
 
 # --- Metrikák és Kiértékelés ---
@@ -25,6 +25,10 @@ matplotlib>=3.6.0
 seaborn>=0.12.0
 
 # --- Fejlesztési Környezet ---
-# Ahhoz, hogy a végső vizsgaprezentációt és a plotokat interaktívan tudjátok mutatni.
+# Ahhoz, hogy a végső vizsgaprezentációt és a plotokat interaktívan tudjuk mutatni.
 jupyter>=1.0.0
 ipykernel>=6.0.0
+
+# --- Egyéb ---
+# A python-dotenv a környezeti változók kezeléséhez kell, például a tanulási ráta ütemező paramétereinek könnyű konfigurálásához.
+python-dotenv>=1.0.0
