@@ -14,9 +14,9 @@ Pipfile.lock
 .ipynb_checkpoints/
 
 # A projekt specifikus adatmappái
-#data/
-#saved_models/
-#results/arrays/
+data/
+saved_models/
+results/arrays/
 
 # IDE specifikus beállítások (VSCode, PyCharm)
 .vscode/
