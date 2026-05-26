@@ -1,0 +1,23 @@
+# Python átmeneti és cache fájlok
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtuális környezetek
+venv/
+env/
+.env/
+.venv/
+Pipfile.lock
+
+# Jupyter Notebook fájlok
+.ipynb_checkpoints/
+
+# A projekt specifikus adatmappái
+#data/
+#saved_models/
+#results/arrays/
+
+# IDE specifikus beállítások (VSCode, PyCharm)
+.vscode/
+.idea/

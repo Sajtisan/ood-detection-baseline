@@ -1,0 +1,30 @@
+# --- Deep Learning Keretrendszer ---
+# Ez tartalmazza a Keras-t is, amivel a modelleket, a normalizációt 
+# és a tanulási ráta ütemezőket (CosineDecay) csináljátok.
+tensorflow>=2.10.0
+
+# --- Adatkezelés és Matematika ---
+# A numpy a Temperature Scaling mátrixműveleteihez és a zajgeneráláshoz kell.
+numpy>=1.23.0
+# A pandas az eredmények (AUROC, FPR) táblázatos összesítéséhez kell.
+pandas>=1.5.0
+# A scipy kritikus: az SVHN (OOD) adathalmaz hivatalos formátuma .mat (MATLAB), 
+# ezt csak a scipy-val tudjátok könnyen betölteni.
+scipy>=1.10.0
+
+# --- Metrikák és Kiértékelés ---
+# Ez a könyvtár felel a küszöbérték-független metrikákért:
+# roc_auc_score (AUROC), average_precision_score (AUPR), roc_curve (FPR95)
+scikit-learn>=1.2.0
+
+# --- Vizualizáció ---
+# A matplotlib a loss/accuracy görbékhez (plot_history) és a ROC/PR görbékhez kell.
+matplotlib>=3.6.0
+# A seaborn a Maximum Softmax Probability (MSP) hisztogramok gyönyörű, 
+# átfedő (density) ábrázolásához elengedhetetlen.
+seaborn>=0.12.0
+
+# --- Fejlesztési Környezet ---
+# Ahhoz, hogy a végső vizsgaprezentációt és a plotokat interaktívan tudjátok mutatni.
+jupyter>=1.0.0
+ipykernel>=6.0.0
