@@ -28,11 +28,46 @@ class TemperatureScaledInference:
 
 def extract_msp_for_dataset(model, dataset, temperatures=[1, 2, 5, 10, 50, 100]):
     """
-    Végigmegy egy adathalmazon, és különböző T értékekkel kinyeri az MSP-ket.
-    (Implementációra vár a csapat által).
+    Kinyeri a Maximum Softmax Probability (MSP) értékeket egy teljes adathalmazra,
+    több különböző hőmérséklet (Temperature) beállítás mellett.
+
+    MIÉRT VAN ERRE SZÜKSÉG?
+    -------------------------------------------------
+    1. Memóriakezelés (OOM elkerülése): 
+       A teszthalmazok (pl. 10 000 - 26 000 kép) nem férnek be egyszerre a GPU 
+       memóriájába. Ez a függvény felel azért, hogy a tf.data.Dataset batch-eken 
+       (kötegeken) iteráljon végig memóriabiztosan.
+       
+    2. Hőmérséklet-söprés (Temperature Sweeping): 
+       A kutatás megköveteli az optimális 'T' érték megkeresését. Ahelyett, hogy 
+       kézzel hatszor lefuttatnánk a teljes Inferencia szkriptet, ez a függvény 
+       egyetlen futtatás alatt kigenerálja és letárolja az eredményeket az 
+       összes megadott T értékre.
+       
+    3. Híd a Milestone 4 felé (Scikit-learn kompatibilitás): 
+       A kimenetnek egybefüggő NumPy tömböknek kell lenniük, amiket a következő 
+       fázisban egy-az-egyben be tudunk dobni a ROC/PR görbe rajzoló függvényekbe.
+
+    TECHNIKAI ELVÁRÁSOK AZ IMPLEMENTÁCIÓHOZ:
+    -------------------------------------------------------------
+    - Hozzatok létre egy eredmény-szótárat (dict), ahol a kulcs a T értéke, 
+      az érték pedig egy üres lista a batch-ek eredményeinek.
+    - Egy külső ciklus menjen végig a 'temperatures' listán.
+    - Minden T esetén példányosítsátok a fenti 'TemperatureScaledInference' 
+      osztályt a 'model' és az adott 'T' átadásával.
+    - Egy belső ciklus menjen végig a 'dataset'-en (for batch in dataset: ...).
+      (Figyelem: Ha a dataset ad címkéket is (x, y), azt megfelelően csomagoljátok ki!)
+    - Hívjátok meg a wrapper.predict_msp(x) függvényt a batch-re, és fűzzétek 
+      hozzá a listához.
+    - A végén az 'np.concatenate' segítségével olvasszátok össze a batch-listákat 
+      egyetlen nagy 1D-s numpy tömbbé (T értékenként).
+
+    VISSZATÉRÉSI ÉRTÉK (Elvárt Output):
+    -----------------------------------
+    Egy dictionary, ahol a kulcs a hőmérséklet (int/float), az érték az MSP tömb (np.array).
+    Példa: { 1: [0.99, 0.82, ...], 2: [0.71, 0.60, ...] }
     """
-    # TODO: A fenti TemperatureScaledInference osztály felhasználásával 
-    # kinyerni az MSP vektorokat a 'dataset' képeiből.
+    # TODO: A fenti dokumentáció és iránymutatás alapján implementáljátok az adatfeldolgozó logikát!
     pass
 
 if __name__ == "__main__":
