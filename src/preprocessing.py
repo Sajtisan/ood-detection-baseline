@@ -48,9 +48,9 @@ def create_inference_pipeline(x, batch_size=64, norm_method='minmax'):
     """
     dataset = tf.data.Dataset.from_tensor_slices(x)
     if norm_method == 'minmax':
-        dataset = dataset.map(min_max_scaler(img), num_parallel_calls=AUTOTUNE)
+        dataset = dataset.map(lambda img, label: (min_max_scaler(img), label), num_parallel_calls=AUTOTUNE)
     elif norm_method == 'zscore':
-        dataset = dataset.map(z_score_standardize(img), num_parallel_calls=AUTOTUNE)
+        dataset = dataset.map(lambda img, label: (z_score_standardize(img), label), num_parallel_calls=AUTOTUNE)
     dataset = dataset.batch(batch_size)
     dataset = dataset.prefetch(buffer_size=AUTOTUNE)
     return dataset
