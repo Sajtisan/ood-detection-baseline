@@ -61,33 +61,37 @@ def apply_noise(images, noise_type, severity=1):
 # --- TESZTELÉSI ÉS VIZUALIZÁCIÓS BLOKK ---
 if __name__ == "__main__":
     from data_loader import load_mnist_id
-    from preprocessing import min_max_scale
+    from preprocessing import min_max_scaler
     
-    print("⏳ Bázis zajgenerátor (Gauss) vizuális tesztelése...")
+    print("⏳ Összes zajgenerátor vizuális tesztelése...")
     
     # 1. Adat betöltése és skálázása [0, 1] közé
     (_, _), (x_test, _) = load_mnist_id()
-    test_image = min_max_scale(x_test[0:1]) # Csak az első képet vesszük ki (batch_size=1)
+    test_image = min_max_scaler(x_test[0:1]) # Csak az első képet vesszük ki (batch_size=1)
     
-    # 2. Gauss-zaj tesztelése (mert csak ez van kész)
-    noisy_gaussian_1 = apply_gaussian_noise(test_image, severity=1)
-    noisy_gaussian_10 = apply_gaussian_noise(test_image, severity=10)
+    # 2. Plot felépítése (3 sor, 3 oszlop)
+    fig, axes = plt.subplots(3, 3, figsize=(10, 9))
+    fig.suptitle("Kép Torzítási Szintek (1-10 skálán)", fontsize=16)
     
-    # 3. Plot felépítése (1 sor, 3 oszlop)
-    fig, axes = plt.subplots(1, 3, figsize=(10, 3))
-    fig.suptitle("Kép Torzítási Szintek - Gauss Zaj", fontsize=14)
+    noise_types = [('Gauss', 'gaussian'), ('Egyenletes', 'uniform'), ('Só-Bors', 'salt_and_pepper')]
     
-    axes[0].imshow(test_image.squeeze(), cmap='gray')
-    axes[0].set_title("Tiszta Kép")
-    axes[0].axis('off')
-    
-    axes[1].imshow(noisy_gaussian_1.squeeze(), cmap='gray')
-    axes[1].set_title("Szint: 1 (Gyenge)")
-    axes[1].axis('off')
-    
-    axes[2].imshow(noisy_gaussian_10.squeeze(), cmap='gray')
-    axes[2].set_title("Szint: 10 (Erős)")
-    axes[2].axis('off')
+    for row_idx, (display_name, n_type) in enumerate(noise_types):
+        # Tiszta kép
+        axes[row_idx, 0].imshow(test_image.squeeze(), cmap='gray')
+        axes[row_idx, 0].set_title(f"Tiszta Kép")
+        axes[row_idx, 0].axis('off')
+        
+        # 1-es szint
+        noisy_1 = apply_noise(test_image, noise_type=n_type, severity=1)
+        axes[row_idx, 1].imshow(noisy_1.squeeze(), cmap='gray')
+        axes[row_idx, 1].set_title(f"{display_name} (Szint: 1)")
+        axes[row_idx, 1].axis('off')
+        
+        # 10-es szint
+        noisy_10 = apply_noise(test_image, noise_type=n_type, severity=10)
+        axes[row_idx, 2].imshow(noisy_10.squeeze(), cmap='gray')
+        axes[row_idx, 2].set_title(f"{display_name} (Szint: 10)")
+        axes[row_idx, 2].axis('off')
 
     plt.tight_layout()
     plt.show()
