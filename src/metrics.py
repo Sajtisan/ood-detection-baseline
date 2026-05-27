@@ -60,7 +60,7 @@ def generate_evaluation_report(id_npy_path, ood_npy_path):
     Betölti a kimentett MSP vektorokat (.npy fájlokból), kiszámolja rájuk a 
     küszöbérték-független metrikákat, és generál egy könnyen olvasható riportot.
 
-    MIÉRT VAN ERRE SZÜKSÉG? (Magyarázat a csapatnak)
+    MIÉRT VAN ERRE SZÜKSÉG?
     -------------------------------------------------
     1. A Hálózat és a Matek szétválasztása (Decoupling): 
        A neurális hálózatok futtatása (Inferencia) órákig is eltarthat és drága 
@@ -74,7 +74,7 @@ def generate_evaluation_report(id_npy_path, ood_npy_path):
        tömböket. Ez a függvény a felelős azért, hogy a nyers matematikát "emberi 
        nyelvre", szép százalékos értékekre fordítsa le.
 
-    TECHNIKAI ELVÁRÁSOK AZ IMPLEMENTÁCIÓHOZ (Hogyan csináljátok):
+    TECHNIKAI ELVÁRÁSOK AZ IMPLEMENTÁCIÓHOZ:
     -------------------------------------------------------------
     1. Használjátok a 'numpy.load(filepath)' függvényt mindkét elérési útra, 
        hogy betöltsétek a memóriába az ID és OOD MSP tömböket.
