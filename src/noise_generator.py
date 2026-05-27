@@ -13,18 +13,12 @@ def apply_gaussian_noise(image, severity=1):
     return np.clip(image + noise, 0.0, 1.0)
 
 def apply_uniform_noise(images, severity=1):
-    """
-    Egyenletes (Uniform) zaj hozzáadása (Implementációra vár).
-    
-    Technikai követelmények:
-    1. A 'severity' (1-10) alapján számold ki a limitet: limit = severity * 0.05
-    2. Használd az np.random.uniform függvényt a [-limit, limit] intervallumon 
-       az 'images.shape' dimenzióival.
-    3. Add hozzá a képekhez, majd (KULCSFONTOSSÁGÚ) használd az np.clip-et, 
-       hogy a pixelértékek [0.0, 1.0] között maradjanak!
-    """
-    # TODO: A fenti logika implementálása
-    pass
+    limit = severity * 0.05
+    # 2. Egyenletes zaj generálása a megfelelő intervallumon és dimenziókkal
+    noise = np.random.uniform(low=-limit, high=limit, size=images.shape)
+    # 3. Zaj hozzáadása a képhez és az értékek vágása (clipping) a [0.0, 1.0] tartományra
+    noisy_images = np.clip(images + noise, 0.0, 1.0)
+    return noisy_images
 
 def apply_salt_and_pepper_noise(images, severity=1):
     """
