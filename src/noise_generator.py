@@ -3,14 +3,17 @@ import matplotlib.pyplot as plt
 
 def apply_gaussian_noise(image, severity=1):
     """
-    Gauss-zaj (normál  eloszlású zaj) hozzáadása.
+    Gauss-zaj (normál eloszlású zaj) hozzáadása.
+    Támogat egyetlen képet (H, W, C), vagy egy teljes köteget is (Batch, H, W, C).
     """
     # 1-es szint: 0.04-es szórás, 10-es szint: 0.4-es szórás
     std = severity * 0.04
-    noise = np.random.normal(loc=0.0, scale=std, size=image.shape)
+    
+    # A size=images.shape miatt dinamikusan alkalmazkodik a batch méretéhez!
+    noise = np.random.normal(loc=0.0, scale=std, size=images.shape)
 
     # np.clip garantálja, hogy a zaj hozzáadása után se lépjük túl a [0, 1] értékhatárokat
-    return np.clip(image + noise, 0.0, 1.0)
+    return np.clip(images + noise, 0.0, 1.0)
 
 def apply_uniform_noise(images, severity=1):
     limit = severity * 0.05
