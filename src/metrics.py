@@ -56,41 +56,40 @@ def calculate_fpr_at_95_tpr(id_msp, ood_msp):
     return fpr[idx]
 
 def generate_evaluation_report(id_npy_path, ood_npy_path):
-    """
-    Betölti a kimentett MSP vektorokat (.npy fájlokból), kiszámolja rájuk a 
-    küszöbérték-független metrikákat, és generál egy könnyen olvasható riportot.
-
-    MIÉRT VAN ERRE SZÜKSÉG?
-    -------------------------------------------------
-    1. A Hálózat és a Matek szétválasztása (Decoupling): 
-       A neurális hálózatok futtatása (Inferencia) órákig is eltarthat és drága 
-       GPU-t igényel. A metrikák számolása viszont csak egyszerű CPU-s matek, 
-       ami tizedmásodpercek alatt lefut. Mivel az inferencia kimenetét (.npy) 
-       lementettétek a lemezre, mostantól bármikor újraszámolhatjátok a metrikákat 
-       GPU nélkül is, ha esetleg elrontottatok valamit a képletben!
-       
-    2. Publikációra kész eredmények: 
-       A végső vizsgán vagy egy kutatási cikkben nem mutathatunk nyers NumPy 
-       tömböket. Ez a függvény a felelős azért, hogy a nyers matematikát "emberi 
-       nyelvre", szép százalékos értékekre fordítsa le.
-
-    TECHNIKAI ELVÁRÁSOK AZ IMPLEMENTÁCIÓHOZ:
-    -------------------------------------------------------------
-    1. Használjátok a 'numpy.load(filepath)' függvényt mindkét elérési útra, 
-       hogy betöltsétek a memóriába az ID és OOD MSP tömböket.
-    2. Hívjátok meg rájuk a fenti 3 matematikai függvényt (calculate_auroc, 
-       calculate_aupr, calculate_fpr_at_95_tpr). Figyelem: az AUPR két értéket ad vissza!
-    3. Használjatok formázott printelés (f-string) a konzolos megjelenítéshez!
-       (Trükk: Érdemes a kapott értékeket 100-zal beszorozni és 2 tizedesjegyre 
-       kerekíteni, pl. 0.9523 -> "95.23%", mert a szakirodalomban így szokás megadni).
+    # adatok betöltése
+    id_msp = np.load(id_npy_path)
+    ood_msp = np.load(ood_npy_path)
     
-    BÓNUSZ FELADAT (Opcionális):
-    Ha akarjátok, a függvény térjen vissza egy dictionary-vel is (pl. 
-    {'AUROC': 95.2, 'FPR95': 12.4}), hogy később esetleg egy Pandas DataFrame-be 
-    tudjuk menteni a kísérleteket!
-    """
-    # TODO: A fenti dokumentáció alapján írjátok meg a betöltő és riportáló logikát!
-    pass
+    # metrikák kiszámítása
+    auroc = calculate_auroc(id_msp, ood_msp)
+    aupr_in, aupr_out = calculate_aupr(id_msp, ood_msp)
+    fpr95 = calculate_fpr_at_95_tpr(id_msp, ood_msp)
+    
+    # eredmények felszorzása 100-zal a százalékos kijelzéshez
+    auroc_pct = auroc * 100
+    aupr_in_pct = aupr_in * 100
+    aupr_out_pct = aupr_out * 100
+    fpr95_pct = fpr95 * 100
+    
+    # riport generálása és kiírása a konzolra
+    print("==================================================")
+    print("      OUT-OF-DISTRIBUTION DETECTION REPORT        ")
+    print("==================================================")
+    print(f"AUROC       (Magasabb a jobb): {auroc_pct:>6.2f}%")
+    print(f"AUPR-In     (Magasabb a jobb): {aupr_in_pct:>6.2f}%")
+    print(f"AUPR-Out    (Magasabb a jobb): {aupr_out_pct:>6.2f}%")
+    print(f"FPR @ 95TPR (Alacsonyabb a jobb): {fpr95_pct:>6.2f}%")
+    print("==================================================")
+    
+    # visszatérés a bónusz dictionary-vel
+    results_dict = {
+        'AUROC': auroc_pct,
+        'AUPR-In': aupr_in_pct,
+        'AUPR-Out': aupr_out_pct,
+        'FPR95': fpr95_pct
+    }
+    
+    return results_dict
 
 if __name__ == "__main__":
     print("⏳ Metrikák matematikai ellenőrzése (Unit Test)...\n")
