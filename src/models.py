@@ -18,20 +18,33 @@ def build_mlp_baseline(input_shape=(28, 28, 1), num_classes=10):
     return model
 
 def build_cnn_standard(input_shape=(32, 32, 3), num_classes=10):
-    """
-    Standard CNN architektúra (Implementációra vár).
-    Cél: A CIFAR-10 adathalmaz robusztusabb feldolgozása.
+    inputs = layers.Input(shape=input_shape)
+    # 1. Blok
+    x = layers.Conv2D(32, (3, 3), padding='same', kernel_initializer='he_normal')(inputs)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+    x = layers.MaxPooling2D((2, 2))(x)
     
-    Technikai követelmények:
-    - Keras Functional API használata (hasonlóan a bázismodellhez).
-    - Javasolt struktúra: Conv2D -> BatchNormalization -> ReLU -> MaxPooling2D 
-      (ebből a blokkból 2-3 egymás után).
-    - A jellemzőkivonás (feature extraction) végén Flatten() helyett 
-      GlobalAveragePooling2D() alkalmazása javasolt a paraméterszám optimalizálására.
-    - A predikciós réteg SZIGORÚAN `layers.Dense(num_classes, activation='linear')` legyen.
-    """
-    # TODO: A modell felépítése a fenti specifikáció alapján
-    pass
+    # 2. Blok
+    x = layers.Conv2D(64, (3, 3), padding='same', kernel_initializer='he_normal')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    
+    # 3. Blok
+    x = layers.Conv2D(128, (3, 3), padding='same', kernel_initializer='he_normal')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    
+    # Paraméterszám optimalizálása Flatten helyett
+    x = layers.GlobalAveragePooling2D()(x)
+    
+    # SZIGORÚAN lineáris aktiváció a logitok kinyeréséhez (pl. Temperature Scalinghez)
+    outputs = layers.Dense(num_classes, activation='linear', name='logits_output')(x)
+    
+    model = models.Model(inputs=inputs, outputs=outputs, name='CNN_Standard')
+    return model
 
 
 def build_resnet_complex(input_shape=(32, 32, 3), num_classes=10):
