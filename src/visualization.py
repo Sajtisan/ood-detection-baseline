@@ -1,5 +1,7 @@
 import os
+import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, auc, precision_recall_curve, average_precision_score
 
 def plot_training_history(history, model_name, save_dir="results/plots"):
     """
@@ -76,3 +78,106 @@ def plot_msp_distributions(id_msp, ood_msp, experiment_name="Baseline", save_dir
     plt.savefig(save_path, bbox_inches='tight', dpi=300)
     print(f"MSP eloszlás grafikon mentve: {save_path}")
     plt.close()
+
+def plot_roc_curves(results_dict, title="ROC Görbék", save_name="roc_curve", save_dir="results/plots"):
+    """
+    Több modell vagy paraméter (pl. Temperature) ROC görbéjének közös ábrázolása.
+    
+    Bemenet:
+    results_dict: Szótár, ahol a kulcs a név (pl. "ResNet", "T=5"), 
+                  az érték pedig egy tuple: (y_true_címkék, msp_pontszámok)
+    """
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+        
+    plt.figure(figsize=(8, 6))
+    
+    # Görbék kirajzolása a szótár alapján
+    for label_name, (y_true, y_scores) in results_dict.items():
+        fpr, tpr, thresholds = roc_curve(y_true, y_scores)
+        roc_auc = auc(fpr, tpr)
+        plt.plot(fpr, tpr, lw=2, label=f'{label_name} (AUC = {roc_auc:.4f})')
+
+    # Véletlen tippelés (Random Guess) átlója
+    plt.plot([0, 1], [0, 1], color='gray', lw=2, linestyle='--', label='Véletlen (AUC = 0.5000)')
+    
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate (FPR)', fontsize=12)
+    plt.ylabel('True Positive Rate (TPR)', fontsize=12)
+    plt.title(title, fontsize=14)
+    plt.legend(loc="lower right")
+    plt.grid(True, linestyle=':', alpha=0.7)
+    
+    save_path = os.path.join(save_dir, f"{save_name}.png")
+    plt.savefig(save_path, bbox_inches='tight', dpi=300)
+    print(f"ROC görbe mentve: {save_path}")
+    plt.close()
+
+def plot_pr_curves(results_dict, title="Precision-Recall Görbék", save_name="pr_curve", save_dir="results/plots"):
+    """
+    Több modell vagy paraméter Precision-Recall (PR) görbéjének közös ábrázolása.
+    """
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+        
+    plt.figure(figsize=(8, 6))
+    
+    for label_name, (y_true, y_scores) in results_dict.items():
+        precision, recall, thresholds = precision_recall_curve(y_true, y_scores)
+        pr_auc = average_precision_score(y_true, y_scores)
+        plt.plot(recall, precision, lw=2, label=f'{label_name} (AUC = {pr_auc:.4f})')
+
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('Recall (Visszahívás)', fontsize=12)
+    plt.ylabel('Precision (Precízió)', fontsize=12)
+    plt.title(title, fontsize=14)
+    plt.legend(loc="lower left")
+    plt.grid(True, linestyle=':', alpha=0.7)
+    
+    save_path = os.path.join(save_dir, f"{save_name}.png")
+    plt.savefig(save_path, bbox_inches='tight', dpi=300)
+    print(f"PR görbe mentve: {save_path}")
+    plt.close()
+
+# --- HASZNÁLATI PÉLDA (MOCK ADATOKKAL) ---
+if __name__ == "__main__":
+    print("⏳ Görbék tesztelése mock adatokkal...")
+    
+    # 1. Címkék generálása: Tegyük fel, van 1000 ID adatunk (1) és 1000 OOD adatunk (0)
+    y_true = np.concatenate([np.ones(1000), np.zeros(1000)])
+    
+    # 2. MSP értékek szimulálása (Valós projektben ezeket a lementett .npy fájlokból töltöd be!)
+    # ID esetén magasabb, OOD esetén alacsonyabb MSP-ket generálunk
+    msp_mlp = np.concatenate([np.random.normal(0.8, 0.1, 1000), np.random.normal(0.5, 0.2, 1000)])
+    msp_cnn = np.concatenate([np.random.normal(0.85, 0.1, 1000), np.random.normal(0.4, 0.15, 1000)])
+    msp_resnet = np.concatenate([np.random.normal(0.9, 0.05, 1000), np.random.normal(0.3, 0.1, 1000)])
+    
+    # Fontos: A valószínűségeket 0 és 1 közé vágjuk
+    msp_mlp = np.clip(msp_mlp, 0, 1)
+    msp_cnn = np.clip(msp_cnn, 0, 1)
+    msp_resnet = np.clip(msp_resnet, 0, 1)
+
+    # 3. Modellek összehasonlítása (ROC és PR)
+    model_comparison_dict = {
+        "MLP Baseline": (y_true, msp_mlp),
+        "Standard CNN": (y_true, msp_cnn),
+        "Complex ResNet": (y_true, msp_resnet)
+    }
+    
+    plot_roc_curves(model_comparison_dict, title="ROC: Modellek összehasonlítása", save_name="roc_models_compare")
+    plot_pr_curves(model_comparison_dict, title="PR: Modellek összehasonlítása", save_name="pr_models_compare")
+
+    # 4. Temperature Scaling hatásának bemutatása egyetlen modellen (pl. ResNet)
+    # Szimuláljuk, hogy a T növelésével kicsit "simul" az eloszlás, ami ronthatja vagy javíthatja a detekciót
+    msp_resnet_t5 = np.clip(msp_resnet - np.random.normal(0.05, 0.05, 2000), 0, 1)
+    msp_resnet_t10 = np.clip(msp_resnet - np.random.normal(0.1, 0.05, 2000), 0, 1)
+
+    temp_comparison_dict = {
+        "ResNet (T=1)": (y_true, msp_resnet),
+        "ResNet (T=5)": (y_true, msp_resnet_t5),
+        "ResNet (T=10)": (y_true, msp_resnet_t10)
+    }
+    
+    plot_roc_curves(temp_comparison_dict, title="ROC: Temperature Scaling (ResNet)", save_name="roc_resnet_temperature")
