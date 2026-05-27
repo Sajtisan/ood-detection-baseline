@@ -49,18 +49,78 @@ def build_cnn_standard(input_shape=(32, 32, 3), num_classes=10):
 
 def build_resnet_complex(input_shape=(32, 32, 3), num_classes=10):
     """
-    Komplex (Residual) architektúra (Implementációra vár).
-    Cél: A hálózat mélységének és zajtűrő képességének maximalizálása.
-    
-    Technikai követelmények:
-    - Két lehetséges megközelítés:
-      1. Egyedi, egyszerűsített ResNet blokk írása (Residual connection tf.keras.layers.Add() használatával).
-      2. A beépített tf.keras.applications.ResNet50V2 használata `include_top=False` beállítással, 
-         majd saját predikciós fej (head) hozzáillesztése.
-    - A predikciós réteg SZIGORÚAN `layers.Dense(num_classes, activation='linear')` legyen.
+    Komplex (Residual) architektúra közvetlenül implementálva (segédfüggvény nélkül).
     """
-    # TODO: A modell felépítése a fenti specifikáció alapján
-    pass
+    inputs = layers.Input(shape=input_shape)
+    
+    # Kezdeti konvolúció a bemeneti képeken
+    x = layers.Conv2D(32, (3, 3), padding='same', kernel_initializer='he_normal')(inputs)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+
+    # ==========================================
+    # 1. RESIDUAL BLOKK (32 filter, nincs méretcsökkentés)
+    # ==========================================
+    shortcut_1 = x
+    
+    # Fő ág
+    x = layers.Conv2D(32, (3, 3), padding='same', kernel_initializer='he_normal')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+    x = layers.Conv2D(32, (3, 3), padding='same', kernel_initializer='he_normal')(x)
+    x = layers.BatchNormalization()(x)
+    
+    # Összeadás és aktiváció
+    x = layers.Add()([shortcut_1, x])
+    x = layers.Activation('relu')(x)
+
+    # ==========================================
+    # 2. RESIDUAL BLOKK (64 filter, méretcsökkentés: stride=2)
+    # ==========================================
+    # Mivel változik a csatornák száma (32 -> 64) és a térbeli méret (stride=2), 
+    # a shortcut ágon is végre kell hajtani egy 1x1-es konvolúciót, hogy összeadhatóak legyenek.
+    shortcut_2 = layers.Conv2D(64, (1, 1), strides=2, padding='same', kernel_initializer='he_normal')(x)
+    shortcut_2 = layers.BatchNormalization()(shortcut_2)
+
+    # Fő ág
+    x = layers.Conv2D(64, (3, 3), strides=2, padding='same', kernel_initializer='he_normal')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+    x = layers.Conv2D(64, (3, 3), padding='same', kernel_initializer='he_normal')(x)
+    x = layers.BatchNormalization()(x)
+    
+    # Összeadás és aktiváció
+    x = layers.Add()([shortcut_2, x])
+    x = layers.Activation('relu')(x)
+
+    # ==========================================
+    # 3. RESIDUAL BLOKK (128 filter, méretcsökkentés: stride=2)
+    # ==========================================
+    shortcut_3 = layers.Conv2D(128, (1, 1), strides=2, padding='same', kernel_initializer='he_normal')(x)
+    shortcut_3 = layers.BatchNormalization()(shortcut_3)
+
+    # Fő ág
+    x = layers.Conv2D(128, (3, 3), strides=2, padding='same', kernel_initializer='he_normal')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+    x = layers.Conv2D(128, (3, 3), padding='same', kernel_initializer='he_normal')(x)
+    x = layers.BatchNormalization()(x)
+    
+    # Összeadás és aktiváció
+    x = layers.Add()([shortcut_3, x])
+    x = layers.Activation('relu')(x)
+
+    # ==========================================
+    # PREDICKIÓS FEJ (Kimenet)
+    # ==========================================
+    # Paraméterszám optimalizálása Flatten helyett a komplex hálózatnál is
+    x = layers.GlobalAveragePooling2D()(x)
+    
+    # SZIGORÚAN lineáris aktiváció a logitok kinyeréséhez
+    outputs = layers.Dense(num_classes, activation='linear', name='logits_output')(x)
+    
+    model = models.Model(inputs=inputs, outputs=outputs, name='ResNet_Complex')
+    return model
 
 if __name__ == "__main__":
     print("⏳ MLP Baseline modell generálása (MNIST dimenziók)...")
