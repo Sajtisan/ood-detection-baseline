@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def apply_gaussian_noise(image, severity=1):
+def apply_gaussian_noise(images, severity=1):
     """
     Gauss-zaj (normál eloszlású zaj) hozzáadása.
     Támogat egyetlen képet (H, W, C), vagy egy teljes köteget is (Batch, H, W, C).
