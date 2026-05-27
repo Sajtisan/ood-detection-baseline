@@ -21,20 +21,25 @@ def apply_uniform_noise(images, severity=1):
     return noisy_images
 
 def apply_salt_and_pepper_noise(images, severity=1):
-    """
-    Só-bors (Salt & Pepper) zaj hozzáadása (Implementációra vár).
+    # sérült pixelek arányának meghatározása
+    amount = severity * 0.03
     
-    Technikai követelmények (For ciklus nélkül, mátrixmaszkolással!):
-    1. A sérült pixelek aránya: amount = severity * 0.03
-    2. Készíts egy másolatot a bemeneti képekről (out = np.copy(images)).
-    3. Generálj egy véletlenszerű mátrixot (np.random.rand) az 'images.shape' dimenziókkal.
-    4. Maszkolás: Ahol a random mátrix értéke < (amount / 2), ott állítsd a pixelt 1.0-ra (só).
-    5. Maszkolás: Ahol a random mátrix értéke (amount / 2) és 'amount' között van, 
-       ott állítsd 0.0-ra (bors).
-    6. Itt nem kell np.clip, mert dedikáltan 0.0-t és 1.0-t adsz értékül.
-    """
-    # TODO: A fenti logika implementálása
-    pass
+    # másolat készítése, hogy az eredeti képeket ne módosítsuk
+    out = np.copy(images)
+    
+    # véletlenszerű mátrix generálása
+    # np.random.rand elvárja a dimenziókat argumentumként, ezért kicsomagoljuk a shape-et (*images.shape)
+    random_matrix = np.random.rand(*images.shape)
+    
+    # maszkolás (Só)
+    out[random_matrix < (amount / 2.0)] = 1.0
+    
+    # maszkolás (Bors)
+    # logikai ÉS (&) operátorral kombináljuk a két feltételt
+    pepper_mask = (random_matrix >= (amount / 2.0)) & (random_matrix < amount)
+    out[pepper_mask] = 0.0
+
+    return out
 
 def apply_noise(images, noise_type, severity=1):
     """
