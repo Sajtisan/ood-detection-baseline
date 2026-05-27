@@ -128,33 +128,28 @@ if __name__ == "__main__":
     print("\n✅ MLP Baseline architektúra sikeresen felépítve!")
     print("📋 MLP Modell összefoglaló (Summary):\n")
     mlp_model.summary()
-
-    # =====================================================================
-    # TESZTEK A TOVÁBBI MODELLEKHEZ (A fejlesztés megkezdésekor vegyétek ki a kommentet)
-    # =====================================================================
-
-    # print("⏳ Standard CNN modell generálása (CIFAR-10 dimenziók)...")
-    # try:
-    #     cnn_model = build_cnn_standard(input_shape=(32, 32, 3), num_classes=10)
-    #     if cnn_model is not None:
-    #         print("\n✅ Standard CNN architektúra sikeresen felépítve!")
-    #         print("📋 CNN Modell összefoglaló (Summary):\n")
-    #         cnn_model.summary()
-    #     else:
-    #         print("❌ A CNN modell még nincs implementálva (None értéket adott vissza).")
-    # except Exception as e:
-    #     print(f"❌ Hiba a CNN modell felépítése során: {e}")
-    # 
-    # print("\n--------------------------------------------------\n")
-    # 
-    # print("⏳ Complex ResNet modell generálása (CIFAR-10 dimenziók)...")
-    # try:
-    #     resnet_model = build_resnet_complex(input_shape=(32, 32, 3), num_classes=10)
-    #     if resnet_model is not None:
-    #         print("\n✅ Complex ResNet architektúra sikeresen felépítve!")
-    #         print("📋 ResNet Modell összefoglaló (Summary):\n")
-    #         resnet_model.summary()
-    #     else:
-    #         print("❌ A ResNet modell még nincs implementálva (None értéket adott vissza).")
-    # except Exception as e:
-    #     print(f"❌ Hiba a ResNet modell felépítése során: {e}")
+    print("⏳ Standard CNN modell generálása (CIFAR-10 dimenziók)...")
+    try:
+        cnn_model = build_cnn_standard(input_shape=(32, 32, 3), num_classes=10)
+        if cnn_model is not None:
+            print("\n✅ Standard CNN architektúra sikeresen felépítve!")
+            print("📋 CNN Modell összefoglaló (Summary):\n")
+            cnn_model.summary()
+        else:
+            print("❌ A CNN modell még nincs implementálva (None értéket adott vissza).")
+    except Exception as e:
+        print(f"❌ Hiba a CNN modell felépítése során: {e}")
+     
+    print("\n--------------------------------------------------\n")
+     
+    print("⏳ Complex ResNet modell generálása (CIFAR-10 dimenziók)...")
+    try:
+        resnet_model = build_resnet_complex(input_shape=(32, 32, 3), num_classes=10)
+        if resnet_model is not None:
+            print("\n✅ Complex ResNet architektúra sikeresen felépítve!")
+            print("📋 ResNet Modell összefoglaló (Summary):\n")
+            resnet_model.summary()
+        else:
+            print("❌ A ResNet modell még nincs implementálva (None értéket adott vissza).")
+    except Exception as e:
+        print(f"❌ Hiba a ResNet modell felépítése során: {e}")
