@@ -181,3 +181,31 @@ if __name__ == "__main__":
     }
     
     plot_roc_curves(temp_comparison_dict, title="ROC: Temperature Scaling (ResNet)", save_name="roc_resnet_temperature")
+
+# --- VIZUALIZÁCIÓS TESZT ÉS GENERÁLÓ BLOKK ---
+if __name__ == "__main__":
+    print("⏳ Átfedő hisztogramok generálásának indítása...\n")
+    
+    # 1. SZIMULÁCIÓ: Baseline (Tiszta adatok, T=1)
+    # A modell nagyon magabiztos az ID adatokon (0.8-0.9 körül), 
+    # és bizonytalan az OOD adatokon (0.3-0.5 körül)
+    baseline_id = np.random.normal(loc=0.85, scale=0.1, size=5000)
+    baseline_id = np.clip(baseline_id, 0.1, 1.0)
+    
+    baseline_ood = np.random.normal(loc=0.35, scale=0.15, size=5000)
+    baseline_ood = np.clip(baseline_ood, 0.1, 1.0)
+    
+    plot_msp_distributions(baseline_id, baseline_ood, experiment_name="Baseline (Tiszta ID)")
+    
+    # 2. SZIMULÁCIÓ: Torzított kísérlet (pl. 5-ös szintű Só-bors zaj)
+    # A zaj miatt az ID adatokon a modell magabiztossága összeomlik, 
+    # és teljesen összefolyik az OOD eloszlással.
+    noisy_id = np.random.normal(loc=0.45, scale=0.2, size=5000)
+    noisy_id = np.clip(noisy_id, 0.1, 1.0)
+    
+    noisy_ood = np.random.normal(loc=0.40, scale=0.18, size=5000)
+    noisy_ood = np.clip(noisy_ood, 0.1, 1.0)
+    
+    plot_msp_distributions(noisy_id, noisy_ood, experiment_name="Noisy S&P (Szint 5)")
+    
+    print("\n✅ Generálás kész! Ellenőrizd a 'results/plots' mappát!")
